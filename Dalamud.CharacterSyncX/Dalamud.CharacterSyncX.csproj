@@ -5,7 +5,6 @@
   </PropertyGroup>
 
   <PropertyGroup Label="Documentation">
-    <DocumentationFile></DocumentationFile>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
@@ -14,21 +13,11 @@
     <Content Include="..\res\warningtex.png" Link="warningtex.png" CopyToOutputDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
 
-  <ItemGroup>
-    <PackageReference Include="StyleCop.Analyzers" Version="1.2.0-beta.333">
-      <PrivateAssets>all</PrivateAssets>
-      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-    </PackageReference>
-  </ItemGroup>
-
   <PropertyGroup>
     <AssemblySearchPaths>
       $(AssemblySearchPaths);
       $(DalamudLibPath);
     </AssemblySearchPaths>
   </PropertyGroup>
-
-  <ItemGroup>
-    <AdditionalFiles Include="stylecop.json" />
-  </ItemGroup>
+    
 </Project>

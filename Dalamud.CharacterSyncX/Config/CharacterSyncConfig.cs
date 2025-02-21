@@ -1,6 +1,6 @@
 ﻿using System.Diagnostics.CodeAnalysis;
 
-using Dalamud.CharacterSync;
+using Dalamud.CharacterSyncX;
 using Dalamud.Configuration;
 
 namespace Dalamud.RichPresence.Config
@@ -68,7 +68,7 @@ namespace Dalamud.RichPresence.Config
         /// <summary>
         /// Gets or sets the "set name".
         /// </summary>
-        public string SetName;
+        public string SetName = string.Empty;
 
         /// <summary>
         /// Save the configuration.
