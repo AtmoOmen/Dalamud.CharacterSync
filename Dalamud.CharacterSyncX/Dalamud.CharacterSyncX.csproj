@@ -1,23 +1,14 @@
 ﻿
 <Project Sdk="Dalamud.CN.NET.Sdk/14.0.0">
-  <PropertyGroup Label="Target">
+  <PropertyGroup>
 	<AssemblyVersion>2.1.3.0</AssemblyVersion>
-  </PropertyGroup>
-
-  <PropertyGroup Label="Documentation">
-    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <MakeZip>true</MakeZip>
+    <UseWPF>true</UseWPF>
   </PropertyGroup>
 
   <ItemGroup>
     <Content Include="..\res\icon.png" Link="images\icon.png" CopyToOutputDirectory="PreserveNewest" Visible="false" />
     <Content Include="..\res\warningtex.png" Link="warningtex.png" CopyToOutputDirectory="PreserveNewest" Visible="false" />
   </ItemGroup>
-
-  <PropertyGroup>
-    <AssemblySearchPaths>
-      $(AssemblySearchPaths);
-      $(DalamudLibPath);
-    </AssemblySearchPaths>
-  </PropertyGroup>
     
 </Project>
