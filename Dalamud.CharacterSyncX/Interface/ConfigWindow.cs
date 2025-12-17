@@ -15,7 +15,7 @@ internal class ConfigWindow() : Window("Character Sync X 配置界面",
 {
     public override void Draw()
     {
-        if (Service.ClientState.LocalPlayer is not { } localPlayer)
+        if (Service.ObjectTable.LocalPlayer is not { } localPlayer)
         {
             ImGui.Text("请先登录");
             return;
@@ -26,13 +26,13 @@ internal class ConfigWindow() : Window("Character Sync X 配置界面",
             ImGui.TextColored(ImGuiColors.TankBlue, "当前角色:");
 
             ImGui.SameLine();
-            ImGui.Text($"{localPlayer.Name}@{localPlayer.HomeWorld.Value.Name} (FFXIV_CHR{Service.ClientState.LocalContentId:X16})");
+            ImGui.Text($"{localPlayer.Name}@{localPlayer.HomeWorld.Value.Name} (FFXIV_CHR{Service.PlayerState.ContentId:X16})");
 
             using (ImRaii.PushIndent())
             {
                 if (ImGui.Button("设置为主角色"))
                 {
-                    Service.Configuration.Cid     = Service.ClientState.LocalContentId;
+                    Service.Configuration.Cid     = Service.PlayerState.ContentId;
                     Service.Configuration.SetName = $"{localPlayer.Name}@{localPlayer.HomeWorld.Value.Name}";
                     Service.Configuration.Save();
                 }
@@ -43,7 +43,7 @@ internal class ConfigWindow() : Window("Character Sync X 配置界面",
                 ImGui.SameLine();
                 if (ImGui.Button("设置为主角色并重启"))
                 {
-                    Service.Configuration.Cid     = Service.ClientState.LocalContentId;
+                    Service.Configuration.Cid     = Service.PlayerState.ContentId;
                     Service.Configuration.SetName = $"{localPlayer.Name}@{localPlayer.HomeWorld.Value.Name}";
                     Service.Configuration.Save();
 
