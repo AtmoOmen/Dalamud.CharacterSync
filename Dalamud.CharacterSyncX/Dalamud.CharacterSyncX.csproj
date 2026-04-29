@@ -1,14 +1,13 @@
-﻿
-<Project Sdk="Dalamud.CN.NET.Sdk/14.0.0">
-  <PropertyGroup>
-	<AssemblyVersion>2.1.3.0</AssemblyVersion>
-    <MakeZip>true</MakeZip>
-    <UseWPF>true</UseWPF>
-  </PropertyGroup>
+﻿<Project Sdk="Dalamud.CN.NET.Sdk/14.0.2">
+    <PropertyGroup>
+        <AssemblyVersion>2.1.4.0</AssemblyVersion>
+        <MakeZip>true</MakeZip>
+        <UseWPF>true</UseWPF>
+    </PropertyGroup>
 
-  <ItemGroup>
-    <Content Include="..\res\icon.png" Link="images\icon.png" CopyToOutputDirectory="PreserveNewest" Visible="false" />
-    <Content Include="..\res\warningtex.png" Link="warningtex.png" CopyToOutputDirectory="PreserveNewest" Visible="false" />
-  </ItemGroup>
-    
+    <ItemGroup>
+        <Content Include="..\res\icon.png" Link="images\icon.png" CopyToOutputDirectory="PreserveNewest" Visible="false"/>
+        <Content Include="..\res\warningtex.png" Link="warningtex.png" CopyToOutputDirectory="PreserveNewest" Visible="false"/>
+    </ItemGroup>
+
 </Project>

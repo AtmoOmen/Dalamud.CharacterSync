@@ -8,10 +8,13 @@ using Dalamud.Interface.Windowing;
 
 namespace Dalamud.CharacterSyncX.Interface;
 
-internal class ConfigWindow() : Window("Character Sync X 配置界面",
-                                       ImGuiWindowFlags.NoCollapse       |
-                                       ImGuiWindowFlags.AlwaysAutoResize |
-                                       ImGuiWindowFlags.NoScrollbar)
+internal class ConfigWindow() : Window
+(
+    "Character Sync X 配置界面",
+    ImGuiWindowFlags.NoCollapse       |
+    ImGuiWindowFlags.AlwaysAutoResize |
+    ImGuiWindowFlags.NoScrollbar
+)
 {
     public override void Draw()
     {
@@ -41,6 +44,7 @@ internal class ConfigWindow() : Window("Character Sync X 配置界面",
                     ImGui.SetTooltip("请在设置后尽快重启一次游戏以让设置生效\n你可以使用 /xlrestart 指令或点击右侧按钮快速重启");
 
                 ImGui.SameLine();
+
                 if (ImGui.Button("设置为主角色并重启"))
                 {
                     Service.Configuration.Cid     = Service.PlayerState.ContentId;
@@ -66,11 +70,15 @@ internal class ConfigWindow() : Window("Character Sync X 配置界面",
             var isMainSet = Service.Configuration.Cid != 0 &&
                             !string.IsNullOrWhiteSpace(Service.Configuration.SetName);
             ImGui.SameLine();
+
             using (ImRaii.PushColor(ImGuiCol.Text, ImGuiColors.DalamudRed, Service.Configuration.Cid == 0))
             {
-                ImGui.Text(!isMainSet
-                               ? "暂未设置, 请登录至想要设置为主角色的游戏角色后点击上方按钮"
-                               : $"{Service.Configuration.SetName} (FFXIV_CHR{Service.Configuration.Cid:X16})");
+                ImGui.Text
+                (
+                    !isMainSet
+                        ? "暂未设置, 请登录至想要设置为主角色的游戏角色后点击上方按钮"
+                        : $"{Service.Configuration.SetName} (FFXIV_CHR{Service.Configuration.Cid:X16})"
+                );
             }
         }
 

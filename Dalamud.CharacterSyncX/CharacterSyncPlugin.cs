@@ -18,17 +18,15 @@ namespace Dalamud.CharacterSyncX;
 /// </summary>
 internal partial class CharacterSyncPlugin : IDalamudPlugin
 {
-    private const string FileInterfaceOpenFileSignature = "E8 ?? ?? ?? ?? 3C 01 0F 85 1C 04 00 00";
-    
+    private const string FILE_INTERFACE_OPEN_FILE_SIGNATURE = "E8 ?? ?? ?? ?? 3C 01 0F 85 1C 04 00 00";
+
     public static IPluginLog PluginLog = null!;
 
-    private readonly WindowSystem  windowSystem;
-    private readonly ConfigWindow  configWindow;
-    
+    private readonly WindowSystem windowSystem;
+    private readonly ConfigWindow configWindow;
+
     private readonly Hook<FileInterfaceOpenFileDelegate> openFileHook;
-
-    private readonly Regex saveFolderRegex = MyRegex();
-
+    
     /// <summary>
     ///     Initializes a new instance of the <see cref="CharacterSyncPlugin" /> class.
     /// </summary>
@@ -38,20 +36,24 @@ internal partial class CharacterSyncPlugin : IDalamudPlugin
 
         interf.Create<Service>();
 
-        Service.Configuration = Service.Interface.GetPluginConfig() as CharacterSyncConfig ?? new CharacterSyncConfig();
+        Service.Configuration = Service.Interface.GetPluginConfig() as CharacterSyncConfig ?? new();
 
-        configWindow  = new();
-        windowSystem  = new("CharacterSync");
+        configWindow = new();
+        windowSystem = new("CharacterSync");
         windowSystem.AddWindow(configWindow);
 
         Service.Interface.UiBuilder.Draw         += windowSystem.Draw;
         Service.Interface.UiBuilder.OpenConfigUi += OnOpenConfigUi;
 
-        Service.CommandManager.AddHandler("/pcharsync", new CommandInfo(OnChatCommand)
-        {
-            HelpMessage = "打开配置界面",
-            ShowInHelp  = true
-        });
+        Service.CommandManager.AddHandler
+        (
+            "/pcharsync",
+            new CommandInfo(OnChatCommand)
+            {
+                HelpMessage = "打开配置界面",
+                ShowInHelp  = true
+            }
+        );
 
         try
         {
@@ -63,16 +65,21 @@ internal partial class CharacterSyncPlugin : IDalamudPlugin
         }
 
         openFileHook =
-            Service.Interop.HookFromSignature<FileInterfaceOpenFileDelegate>(
-                FileInterfaceOpenFileSignature, OpenFileDetour);
+            Service.Interop.HookFromSignature<FileInterfaceOpenFileDelegate>
+            (
+                FILE_INTERFACE_OPEN_FILE_SIGNATURE,
+                OpenFileDetour
+            );
         openFileHook.Enable();
     }
 
-    private delegate IntPtr FileInterfaceOpenFileDelegate(
+    private delegate IntPtr FileInterfaceOpenFileDelegate
+    (
         IntPtr                                   pFileInterface,
         [MarshalAs(UnmanagedType.LPWStr)] string filepath,
-        uint                                     a3);
-    
+        uint                                     a3
+    );
+
     /// <inheritdoc />
     public void Dispose()
     {
@@ -106,10 +113,15 @@ internal partial class CharacterSyncPlugin : IDalamudPlugin
             Path.Combine(backupFolder.FullName, DateTimeOffset.UtcNow.ToUnixTimeSeconds().ToString());
         Directory.CreateDirectory(thisBackupFolder);
 
-        var xivFolder = new DirectoryInfo(Path.Combine(
-                                              Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
-                                              "My Games",
-                                              "FINAL FANTASY XIV - A Realm Reborn"));
+        var xivFolder = new DirectoryInfo
+        (
+            Path.Combine
+            (
+                Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                "My Games",
+                "FINAL FANTASY XIV - A Realm Reborn"
+            )
+        );
 
         if (!xivFolder.Exists)
         {
@@ -136,7 +148,8 @@ internal partial class CharacterSyncPlugin : IDalamudPlugin
         {
             if (Service.Configuration.Cid != 0)
             {
-                var match = saveFolderRegex.Match(filepath);
+                var match = SaveFolderRegex().Match(filepath);
+
                 if (match.Success)
                 {
                     var rootPath = match.Groups["path"].Value;
@@ -147,7 +160,10 @@ internal partial class CharacterSyncPlugin : IDalamudPlugin
                 }
             }
         }
-        catch (Exception ex) { PluginLog.Error(ex, "尝试拦截游戏文件写入时发生错误"); }
+        catch (Exception ex)
+        {
+            PluginLog.Error(ex, "尝试拦截游戏文件写入时发生错误");
+        }
 
         return openFileHook.Original(pFileInterface, filepath, a3);
     }
@@ -156,7 +172,7 @@ internal partial class CharacterSyncPlugin : IDalamudPlugin
     {
         switch (datName)
         {
-            case "HOTBAR.DAT" when Service.Configuration.SyncHotbars:
+            case "HOTBAR.DAT" or "ACQ.DAT" when Service.Configuration.SyncHotbars:
             case "MACRO.DAT" when Service.Configuration.SyncMacro:
             case "KEYBIND.DAT" when Service.Configuration.SyncKeybind:
             case "LOGFLTR.DAT" when Service.Configuration.SyncLogfilter:
@@ -171,6 +187,10 @@ internal partial class CharacterSyncPlugin : IDalamudPlugin
         return false;
     }
 
-    [GeneratedRegex(@"(?<path>.*)FFXIV_CHR(?<cid>.*)\/(?!ITEMODR\.DAT|ITEMFDR\.DAT|GEARSET\.DAT|UISAVE\.DAT|.*\.log)(?<dat>.*)", RegexOptions.Compiled | RegexOptions.CultureInvariant)]
-    private static partial Regex MyRegex();
+    [GeneratedRegex
+    (
+        @"(?<path>.*)FFXIV_CHR(?<cid>.*)\/(?!ITEMODR\.DAT|ITEMFDR\.DAT|GEARSET\.DAT|UISAVE\.DAT|.*\.log)(?<dat>.*)",
+        RegexOptions.Compiled | RegexOptions.CultureInvariant
+    )]
+    private static partial Regex SaveFolderRegex();
 }
