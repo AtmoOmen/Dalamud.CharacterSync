@@ -2,14 +2,18 @@
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using Dalamud.CharacterSyncX.Interface;
 using Dalamud.Game.Command;
 using Dalamud.Hooking;
 using Dalamud.Interface.Windowing;
+using Dalamud.Memory;
 using Dalamud.Plugin;
 using Dalamud.Plugin.Services;
 using Dalamud.RichPresence.Config;
+using FFXIVClientStructs.FFXIV.Client.System.File;
+using InteropGenerator.Runtime;
 
 namespace Dalamud.CharacterSyncX;
 
@@ -30,11 +34,11 @@ internal partial class CharacterSyncPlugin : IDalamudPlugin
     /// <summary>
     ///     Initializes a new instance of the <see cref="CharacterSyncPlugin" /> class.
     /// </summary>
-    public CharacterSyncPlugin(IDalamudPluginInterface interf, IPluginLog pluginLog)
+    public unsafe CharacterSyncPlugin(IDalamudPluginInterface dalamud, IPluginLog pluginLog)
     {
         PluginLog = pluginLog;
 
-        interf.Create<Service>();
+        dalamud.Create<Service>();
 
         Service.Configuration = Service.Interface.GetPluginConfig() as CharacterSyncConfig ?? new();
 
@@ -73,11 +77,11 @@ internal partial class CharacterSyncPlugin : IDalamudPlugin
         openFileHook.Enable();
     }
 
-    private delegate IntPtr FileInterfaceOpenFileDelegate
+    private unsafe delegate byte FileInterfaceOpenFileDelegate
     (
-        IntPtr                                   pFileInterface,
-        [MarshalAs(UnmanagedType.LPWStr)] string filepath,
-        uint                                     a3
+        FileInterface* fileInterface,
+        char*          filepath,
+        OpenFileMode   mode
     );
 
     /// <inheritdoc />
@@ -142,13 +146,14 @@ internal partial class CharacterSyncPlugin : IDalamudPlugin
         PluginLog.Information("已完成备份");
     }
 
-    private IntPtr OpenFileDetour(IntPtr pFileInterface, [MarshalAs(UnmanagedType.LPWStr)] string filepath, uint a3)
+    private unsafe byte OpenFileDetour(FileInterface* fileInterface, char* wideFilePath, OpenFileMode mode)
     {
         try
         {
             if (Service.Configuration.Cid != 0)
             {
-                var match = SaveFolderRegex().Match(filepath);
+                var pathString = Marshal.PtrToStringUni((nint)wideFilePath) ?? string.Empty;
+                var match = SaveFolderRegex().Match(pathString);
 
                 if (match.Success)
                 {
@@ -156,7 +161,7 @@ internal partial class CharacterSyncPlugin : IDalamudPlugin
                     var datName  = match.Groups["dat"].Value;
 
                     if (PerformRewrite(datName))
-                        filepath = $"{rootPath}FFXIV_CHR{Service.Configuration.Cid:X16}/{datName}";
+                        MemoryHelper.WriteString((nint)wideFilePath, $"{rootPath}FFXIV_CHR{Service.Configuration.Cid:X16}/{datName}", new UnicodeEncoding());
                 }
             }
         }
@@ -165,7 +170,7 @@ internal partial class CharacterSyncPlugin : IDalamudPlugin
             PluginLog.Error(ex, "尝试拦截游戏文件写入时发生错误");
         }
 
-        return openFileHook.Original(pFileInterface, filepath, a3);
+        return openFileHook.Original(fileInterface, wideFilePath, mode);
     }
 
     private static bool PerformRewrite(string datName)
