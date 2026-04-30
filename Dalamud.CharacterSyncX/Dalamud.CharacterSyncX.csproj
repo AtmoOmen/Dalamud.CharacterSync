@@ -1,8 +1,6 @@
-﻿<Project Sdk="Dalamud.CN.NET.Sdk/14.0.2">
+﻿<Project Sdk="Dalamud.CN.NET.Sdk/15.0.0">
     <PropertyGroup>
-        <AssemblyVersion>2.1.5.0</AssemblyVersion>
-        <MakeZip>true</MakeZip>
-        <UseWPF>true</UseWPF>
+        <AssemblyVersion>2.1.6.0</AssemblyVersion>
     </PropertyGroup>
 
     <ItemGroup>
